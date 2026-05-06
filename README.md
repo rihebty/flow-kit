@@ -5,6 +5,7 @@
 里面的思路不是凭空想的，主要是把最近折腾过的几个开源项目——bmad、spec-kit、OpenSpec、GSD、claude-task-master、superpowers、gstack、skills——里面我觉得有用的部分挑出来，再按自己的工作流重排一遍。各自的品牌和 CLI 依赖都剥掉了，只留 markdown。
 
 装一次，后面不跟任何上游版本绑定。
+### 2026.5.6 下午15点，运行过程发现AI会跳过一些流程，请注意
 
 ## 为什么是纯 markdown
 
