@@ -382,6 +382,16 @@ flow-kit 与四类扩展的关系：
 
 ---
 
+### 可选运行时门禁：Forge
+
+flow-kit 默认仍然是纯 markdown、无运行时。如果你在 Claude Code 里经常遇到 AI 跳过阶段、漏写产物、漏测试或漏 review，可以额外接入 Forge 作为可选 runtime adapter。
+
+Forge 的角色不是替代 flow-kit，而是读取 flow-kit 的阶段 / change-id / task-id，并通过 Claude Code hooks、routing log、health check 和 smoke test 做运行时门禁。没装 Forge 时，flow-kit 行为完全不变。
+
+详细说明见：[`reference/runtime-adapters/forge.md`](reference/runtime-adapters/forge.md)。
+
+---
+
 ## 「我能不能只用 X」决策指南
 
 按你的具体诉求选择：
