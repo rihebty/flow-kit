@@ -2,7 +2,7 @@
 
 一套攒起来的 AI 编程流程文档。我自己平时写项目用的那套方法抽成可复用的 markdown 包。
 
-里面的思路不是凭空想的，主要是把最近折腾过的几个开源项目——spec-kit、OpenSpec、GSD、claude-task-master、superpowers、gstack、skills——里面我觉得有用的部分挑出来，再按自己的工作流重排一遍。各自的品牌和 CLI 依赖都剥掉了，只留 markdown。
+里面的思路不是凭空想的，主要是把最近折腾过的几个开源项目——bmad、spec-kit、OpenSpec、GSD、claude-task-master、superpowers、gstack、skills——里面我觉得有用的部分挑出来，再按自己的工作流重排一遍。各自的品牌和 CLI 依赖都剥掉了，只留 markdown。
 
 装一次，后面不跟任何上游版本绑定。
 
