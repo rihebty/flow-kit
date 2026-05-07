@@ -94,6 +94,18 @@ flow-kit 的文件分两类，**加载策略不同**：
 2. 关注字段：`活跃 Change` / `当前阶段` / `当前 Task` / `中断任务`
 3. 如果存在 `中断任务` 非空 → **优先级最高**，直接走"恢复中断任务"分支（见下表）
 
+### 可选 runtime adapter 检测
+
+flow-kit 默认不依赖任何运行时。若项目同时存在 `.claude/hooks/forge-pretool-guard.ps1` 与 `.claude/hooks/forge-session-audit.ps1`，说明可选 Forge runtime adapter 已安装。
+
+检测到 Forge 时，在路由声明里追加一行：
+
+```text
+Forge adapter: detected / not detected
+```
+
+若 detected，进入 `4-dev`、`5-test`、`6-review`、`7-integration` 时，可以把当前 `change-id`、阶段、task-id、风险、测试和 review 证据写入 Forge routing/state，供运行时门禁使用。Forge 缺失时不要报错，继续纯 markdown 流程。
+
 ## 第二步 · 解析用户意图，路由到阶段
 
 按以下表格匹配用户输入（**取最先命中那一条**）：
