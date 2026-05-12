@@ -47,10 +47,14 @@
 
 - **R2.1** 没 `CHANGE.md` 不能进 REQUIREMENT
 - **R2.2** 没 `REQUIREMENT.md` 不能进 DESIGN
-- **R2.3** 没 `TASK.md` 不能写代码；每任务必含可执行 `verify`
+- **R2.3** 没正式 `TASK.md` 或用户显式提供的临时最小 TASK，不能写代码；每任务必含可执行 `verify`
 - **R2.4** verify 未通过禁止标记完成
 - **R2.5** REVIEW 标 Critical 项必须修复或显式接受
 - **R2.6** UAT 失败自动重试 ≤ 3 轮，超限暂停
+- **R2.7** 进入任意阶段前必须跑 Artifact Preflight Gate，检查上游 `.md` 工件是否齐全
+- **R2.8** 缺上游工件必须回退生成，禁止伪造"已满足"
+- **R2.9** `4-dev` 单点调用必须有正式 TASK 或用户显式提供的临时最小 TASK；AI 不得自行编造
+- **R2.10** 前端 / UI 任务缺 `UI-DESIGN.md` 禁止进入 DEV；纯后端 / CLI / lib 才能跳过 2a
 
 ## R3 · 角色红线
 

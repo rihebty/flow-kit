@@ -17,7 +17,7 @@
 
 ## 输出
 
-- `templates/CONTEXT.md` 填好的版本，写到仓库根 `CONTEXT.md`（或 `.specs/CONTEXT.md`）
+- `templates/CONTEXT.md` 填好的版本，统一写到 `.specs/CONTEXT.md`
 - `STATE.md` 的 `last_intel_scan: <YYYY-MM-DD>` 字段更新
 
 ## 步骤
@@ -59,7 +59,7 @@ flow-kit 用 CONTEXT.md 作为单一源。请选择：
   1. 综合 + 扫描（推荐）：我读所有现有文档 + 跑入场扫描，合并生成 CONTEXT.md
   2. 以现有文档为准：选定其中一个作为基础（告诉我哪个）→ 我提取关键信息到 CONTEXT.md，保留双向链接
   3. 忽略现有文档，重新扫描生成
-  4. 不生成 CONTEXT.md，4-dev / 2-design 改用 <你指定的文档>（如 AGENTS.md）作为 AI 遵守依据
+  4. 不生成 `.specs/CONTEXT.md`，4-dev / 2-design 改用 <你指定的文档>（如 AGENTS.md）作为 AI 遵守依据
 
 请选 1/2/3/4。无人工确认前我不动手。
 ```
@@ -69,7 +69,7 @@ flow-kit 用 CONTEXT.md 作为单一源。请选择：
 - **选 1（综合）**：read 每份文档（带 R1.9 token 预算控制） → 跑步骤 1（项目元信息）→ 把现有文档的关键决策**整合**到 CONTEXT.md（在段落末尾标 `来自 AGENTS.md:42`）→ 在 CONTEXT.md 顶部加「源文档」段列出所有引用
 - **选 2（以现有为准）**：read 用户指定的文档 → 把它的关键内容映射到 CONTEXT.md 的对应段（`既有抽象索引` / `命名约定` / `禁动清单` 等），跑**精简扫描**（只补现有文档没说的部分）
 - **选 3（忽略重扫）**：直接跑步骤 1，不读现有文档（**警告用户**：可能与现有约定冲突）
-- **选 4（不生成 CONTEXT.md）**：在 STATE.md 写 `ai_context_doc: <用户指定路径>`，**所有后续阶段**（GO.md / 2-design / 4-dev）改读这个文档代替 CONTEXT.md。**跳过本 prompt 剩余步骤**
+- **选 4（不生成 `.specs/CONTEXT.md`）**：在 STATE.md 写 `ai_context_doc: <用户指定路径>`，**所有后续阶段**（GO.md / 2-design / 4-dev）改读这个文档代替 `.specs/CONTEXT.md`。**跳过本 prompt 剩余步骤**
 
 ##### 分支 B · 找到非标准但项目级文档（README / ARCHITECTURE / CONTRIBUTING）
 
@@ -207,7 +207,7 @@ grep -l "DATABASE_URL\|REDIS_URL" .env*    → 服务依赖
 
 ```markdown
 last_intel_scan: 2026-05-02
-context_file: CONTEXT.md
+context_file: .specs/CONTEXT.md
 detected_stack: <主要技术栈一句话总结>
 ```
 
@@ -230,14 +230,14 @@ detected_stack: <主要技术栈一句话总结>
   - 涉及 schema 改动 → 建议引入 Prisma 或 Knex（4-dev 1.7 会拦）
   - 新增模块的 hooks 命名要参考现有 22 个的风格
 
-`CONTEXT.md` 已生成。后续运行 0-change 时 AI 会自动加载。
+`.specs/CONTEXT.md` 已生成。后续运行 0-change 时 AI 会自动加载。
 ```
 
 ## 自检
 
 - [ ] **步骤 0 既有文档探测做了**：找到的标准 AI 上下文文档已列出，用户已选定分支（A/B/C），决策已写入扫描总结
 - [ ] **未经用户同意没自动开始扫描**（分支 C 必须等用户回复 1/2/3）
-- [ ] 用户选 4「不生成 CONTEXT.md」时已写 `STATE.md` 的 `ai_context_doc` 字段并跳过剩余步骤
+- [ ] 用户选 4「不生成 `.specs/CONTEXT.md`」时已写 `STATE.md` 的 `ai_context_doc` 字段并跳过剩余步骤
 - [ ] 1.1~1.6 各段都有 grep / read 输出（不靠猜）
 - [ ] CONTEXT.md 的每个字段都有文件路径 / 行号引用
 - [ ] CONTEXT.md 顶部「源文档」段列出引用的 AGENTS / CLAUDE / 等（如适用）
@@ -247,4 +247,4 @@ detected_stack: <主要技术栈一句话总结>
 ## 触发下一步
 
 - 跑完 → 用户继续原本意图（如 `@flow-kit/GO.md` + 一句新需求）
-- AI 此时会自动读 CONTEXT.md（或步骤 0 选 4 指定的替代文档）→ 后续阶段都基于它
+- AI 此时会自动读 `.specs/CONTEXT.md`（或步骤 0 选 4 指定的替代文档）→ 后续阶段都基于它

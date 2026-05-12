@@ -33,7 +33,7 @@ flow-kit 的文件分两类，**加载策略不同**：
 
 ### 典型 token 成本表（按一个中等规模 change，前端项目，5 个 task）
 
-| 阶段 | 完整模式 | 极简模式（跳 2a / 第四轮 / 跨模型）| 单点调用（仅跑选定阶段）|
+| 阶段 | 完整模式 | 极简模式（非 UI 跳 2a / 跳第四轮 / 跳跨模型）| 单点调用（仅跑选定阶段）|
 |---|---|---|---|
 | 0 + 1 + 2 + 2a + 3（规划链） | ~42k - 62k | ~30k - 45k | 按需，只跑你需要的那个 |
 | 4 × 5 task（实施） | ~125k - 300k | ~125k - 300k | 单 task ~25k - 60k |
@@ -53,7 +53,7 @@ flow-kit 的文件分两类，**加载策略不同**：
    - 已选挡位：完整 / 极简 / 单点
 ✅ 是否继续？或换挡位？
    1. 完整（推荐 500+ 行 / 团队项目 / 长期维护）
-   2. 极简（推荐 100~500 行 · 跳 2a / 跳第四轮 / 跳跨模型，省 ~20%）
+   2. 极简（推荐 100~500 行 · 非 UI 项目可跳 2a / 跳第四轮 / 跳跨模型，省 ~20%；UI 项目 2a 不可跳）
    3. 单点（你只想跑某一阶段，告诉我哪一个）
    4. 不走 flow-kit（< 50 行代码 / bugfix 直接修，别走闭环）
 ```
@@ -81,8 +81,8 @@ flow-kit 的文件分两类，**加载策略不同**：
 
 | 你的诉求 | 选 |
 |---|---|
-| 想要全套产物（CHANGE / REQUIREMENT / DESIGN / TASK / SUMMARY × N / TEST / REVIEW） | 完整 |
-| 想要核心产物但能少则少（DESIGN / TASK / SUMMARY × N / REVIEW） | 极简 |
+| 想要全套产物（CHANGE / REQUIREMENT / DESIGN / UI-DESIGN（前端）/ TASK / SUMMARY × N / TEST / REVIEW） | 完整 |
+| 想要核心产物但能少则少（REQUIREMENT / DESIGN / TASK / SUMMARY × N / REVIEW；UI 项目另含 UI-DESIGN） | 极简 |
 | 只想跑某一阶段（如只 review / 只 design / 只 体检）| 单点 · 见 README 决策表 |
 | 代码 < 50 行 · 一次性修补 · hackathon | 不走 flow-kit，走 7 个原生 skill 更划算 |
 
@@ -106,9 +106,35 @@ Forge adapter: detected / not detected
 
 若 detected，进入 `4-dev`、`5-test`、`6-review`、`7-integration` 时，可以把当前 `change-id`、阶段、task-id、风险、测试和 review 证据写入 Forge routing/state，供运行时门禁使用。Forge 缺失时不要报错，继续纯 markdown 流程。
 
+## 第二步前 · Artifact Preflight Gate（强制）
+
+路由到任何阶段前，先检查上游工件是否存在且足够用。**阶段可以压缩到同一轮对话里做，但关键工件不能缺席。**
+
+| 目标阶段 | 必须已有的上游工件 | 缺失时动作 |
+|---|---|---|
+| `0-change` | 无 | 直接进入 |
+| `1-requirement` | `.specs/<id>/CHANGE.md` | 回 `0-change` 生成 CHANGE |
+| `2-design` | `.specs/<id>/CHANGE.md` + `.specs/<id>/REQUIREMENT.md` | 缺哪个回哪个阶段补齐 |
+| `2a-ui-design` | `CHANGE.md` + `REQUIREMENT.md` + `DESIGN.md` | 回缺失阶段补齐；UI 项目不能用极简模式跳过 |
+| `3-task` | `REQUIREMENT.md` + `DESIGN.md`；前端/UI 项目还必须有 `UI-DESIGN.md` | 回缺失阶段补齐 |
+| `4-dev` | 正式 `.specs/<id>/TASK.md` 中的当前 task，或用户显式提供的临时最小 TASK | 没有就反问：回 `3-task` 生成正式 TASK，还是由用户提供临时最小 TASK |
+| `5-test` | `REQUIREMENT.md` + `DESIGN.md` + `TASK.md` + 各 `*-SUMMARY.md` | 回缺失阶段补齐 |
+| `6-review` | `REQUIREMENT.md` + `TASK.md` + `TEST.md` + 本次 diff；有 `DESIGN.md` / `UI-DESIGN.md` 时必须一起读 | 回缺失阶段补齐 |
+| `7-integration` | `.specs/<id>/` 下本 change 的全部应有产物 | 回缺失阶段补齐 |
+
+临时最小 TASK 不是正式 `TASK.md` 的隐式替代品。它只允许用于单点调用 `4-dev`，且必须由用户显式给出，包含 `id / name / read_files / write_files / action / verify / done`。AI 不允许为了绕过 `3-task` 自己编造临时 TASK。
+
+Preflight 失败时，路由声明必须写明：
+
+```text
+规则 R2.7 触发：目标阶段缺少 <工件>。本次先回到 <阶段> 补齐，不能直接继续。
+```
+
 ## 第二步 · 解析用户意图，路由到阶段
 
-按以下表格匹配用户输入（**取最先命中那一条**）：
+匹配表格前先判断是否是**新事物描述**：如果当前没有活跃 change，且用户是在说"做 / 想 / 加 / 实现 / 设计 + X"，即使句子里含有"设计 / UI / 测试 / review"等词，也优先路由到 `0-change`。只有已经存在活跃 change 且 Artifact Preflight Gate 通过时，才允许直达中间阶段。
+
+按以下表格匹配用户输入（在上面优先级之后，**取最先命中那一条**）：
 
 | 用户输入特征 | 路由到 | 备注 |
 |---|---|---|
@@ -118,12 +144,12 @@ Forge adapter: detected / not detected
 | `测试` / `写测试` / `UAT` / `test` | `prompts/5-test.md` | |
 | `上线` / `集成` / `验收` / `ship` / `归档` | `prompts/7-integration.md` | |
 | `拆任务` / `plan tasks` / `分解` | `prompts/3-task.md` | |
-| `设计` + `<已有需求>` / `架构` / `design` | `prompts/2-design.md` | 当 REQUIREMENT 已存在时；后端项目 |
+| `设计` + `<已有需求>` / `架构` / `design` | `prompts/2-design.md` | 仅当 `CHANGE.md` + `REQUIREMENT.md` 已存在；否则回缺失阶段 |
 | `选技术` / `选栈` / `选框架` / `tech stack` / `用什么开发` / `迁移评估` | `prompts/2-design.md` 步骤 0 | 只需技术栈选型时入口 |
-| `UI` / `视觉` / `美学` / `theme` / `design system` / `design tokens` | `prompts/2a-ui-design.md` | 前端项目，用户可见 UI |
+| `UI` / `视觉` / `美学` / `theme` / `design system` / `design tokens` | `prompts/2a-ui-design.md` | 前端项目，用户可见 UI；必须已有 `CHANGE.md` + `REQUIREMENT.md` + `DESIGN.md` |
 | `换调性` / `改风格` / `换风格` / `redesign` / `restyle` / `重做视觉` / `换皮` | `prompts/L-restyle.md` | 已有项目换视觉，保留功能 |
 | `健康检查` / `health` / `体检` / `技术债扫描` / `巡检` / `brooks-health` / `brooks-sweep` / `brooks-audit` / `brooks-debt` / `扫冗余` / `找死代码` / `找重复` / `清未用导出` / `清未用依赖` / `dedupe` / `dead code` | `prompts/M-health.md` | 代码库周期性巡检 + 冗余扫描（步骤 2.5），不属任何 change |
-| `扫描代码` / `scan` / `intel` / `入场扫描` / `给项目体检` / `老项目首次访问` | `prompts/I-intel-scan.md` | 生成 / 更新 `CONTEXT.md`，brownfield 项目首次使用必跑 |
+| `扫描代码` / `scan` / `intel` / `入场扫描` / `给项目体检` / `老项目首次访问` | `prompts/I-intel-scan.md` | 生成 / 更新 `.specs/CONTEXT.md`，brownfield 项目首次使用必跑 |
 | `同步架构` / `沉淀架构` / `evolve` / `架构演进` / `同步 CONTEXT` / `整理沉淀` | `prompts/A-evolve.md` | 扫近期归档 change 的 DESIGN § 9，批量 review + patch CONTEXT.md / ARCHITECTURE.md（不属任何 change）|
 | `建立架构` / `架构梳理` / `重构架构` / `architect` / `重审 ADR` / `画架构图` | `prompts/A-architect.md` | 首次 / 重构时建立 `ARCHITECTURE.md`。项目级 ADR / 模块图 / 跨模块契约（不属任何 change）|
 | `需求` / `spec` / `requirement` | `prompts/1-requirement.md` | |
@@ -160,7 +186,7 @@ Forge adapter: detected / not detected
 
 用户上次明确指定了某文档为 AI 遵守依据。**直接读它**，不再询问。
 
-后续阶段（2-design / 4-dev）改读 `<ai_context_doc>` 替代 CONTEXT.md。
+后续阶段（2-design / 4-dev）改读 `<ai_context_doc>` 替代 `.specs/CONTEXT.md`。
 
 #### 情况 B · 已存在 CONTEXT.md 且 `last_intel_scan` 在 90 天内
 
@@ -250,7 +276,7 @@ flow-kit 后续阶段需要项目上下文给 AI 用。请选择：
 | 6 | `<id>/REQUIREMENT.md` + `<id>/DESIGN.md` + `<id>/TASK.md` + `<id>/TEST.md` + `git diff` | `flow-kit/reference/ui-anti-patterns.md`（前端项目第三轮 · 75 行可全读）| — |
 | 7 | `.specs/<id>/` 全部产物 + `.specs/LESSONS.md` | — | — |
 | **M** (health) | `.specs/CONTEXT.md` + `.specs/LESSONS.md` + 最近 1 份 `.specs/health/*.md`（如有，做对比基线）| — | 抽样 5 个最近改动频繁的 src/ 模块 + 5 个测试文件 + 最近 30 天 git log |
-| **A** (evolve) | `.specs/STATE.md` + `.specs/CONTEXT.md` + `.specs/ARCHITECTURE.md`（如存在）+ 范围内每个 `.specs/archive/<change>/DESIGN.md` 的 § 9 段（仅 § 9，非整份 DESIGN）| — | 仅扫 `last_evolve_at` 之后归档的 change，禁止越界读 § 9 以外的 DESIGN 内容 |
+| **A** (evolve) | `STATE.md` + `.specs/CONTEXT.md` + `.specs/ARCHITECTURE.md`（如存在）+ 范围内每个 `.specs/archive/<change>/DESIGN.md` 的 § 9 段（仅 § 9，非整份 DESIGN）| — | 仅扫 `last_evolve_at` 之后归档的 change，禁止越界读 § 9 以外的 DESIGN 内容 |
 | **A** (architect) | `.specs/CONTEXT.md` + `.specs/ARCHITECTURE.md`（如存在）+ `.specs/CHANGELOG.md` + `flow-kit/templates/ARCHITECTURE.md`（模板）| — | `src/` 顶层结构 + `package.json` / 依赖文件 + 抽样几份 `.specs/archive/*/DESIGN.md` |
 
 ### 查 reference 某一节的实际动作示例
