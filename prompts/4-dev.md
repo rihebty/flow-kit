@@ -11,10 +11,37 @@
 - `@.specs/<change-id>/DESIGN.md`（**必读 `## 0. 技术栈选定` + `## 0.5 既有架构对齐`**——install / build / test 命令必须匹配选定的栈；触碰模块 / 禁动清单 / 沿用决策必须严格遵循）
 - **项目上下文文档**（从 `STATE.md` 读 `ai_context_doc` 字段决定）：
   - 有 `ai_context_doc: <path>` → 读那个文档（如 `AGENTS.md` / `CLAUDE.md`）
-  - 没或为 `CONTEXT.md` → 读 `@.specs/CONTEXT.md`
+  - 没或为 `CONTEXT.md` / `.specs/CONTEXT.md` → 读 `@.specs/CONTEXT.md`
   - `none` → 跳过此输入（AI "盲飞"，1.4 沿用既有抽象 grep 必须更彻底以补偿）
 - `@.specs/LESSONS.md`
 - 仅引用与本任务相关的文件，**不要加载整个项目**
+
+## 入口门禁（Artifact Preflight）
+
+`4-dev` 必须满足二选一：
+
+1. **正式流程**：读取 `.specs/<change-id>/TASK.md` 中的当前 `<task>` 块。
+2. **单点调用**：用户显式提供一份临时最小 TASK。
+
+临时最小 TASK 必须包含：
+
+- `id`
+- `name`
+- `read_files`
+- `write_files`
+- `action`
+- `verify`
+- `done`
+
+AI 不允许自行编造临时最小 TASK；缺字段必须反问用户或回到 `@flow-kit/prompts/3-task.md` 生成正式 `TASK.md`。
+
+若当前 task 涉及前端 / UI 文件（`.css` / `.tsx` / `.vue` / `.html` / `.svelte` / 设计 token / 用户可见文案），必须先确认 `.specs/<change-id>/UI-DESIGN.md` 存在。缺失时停止，回到 `@flow-kit/prompts/2a-ui-design.md`。纯后端 / CLI / lib 任务才可跳过。
+
+触发时输出：
+
+```text
+规则 R2.7 触发：4-dev 缺少 <TASK 或 UI-DESIGN>。本次先回到 <阶段> 补齐，不能直接写代码。
+```
 
 ## 你的职责
 

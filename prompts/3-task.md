@@ -10,6 +10,21 @@
 - `@.specs/<change-id>/DESIGN.md`（**必读 `## 0. 技术栈选定`**——任务的 verify 命令、依赖管理、目录结构必须按选定的栈写）
 - `@.specs/CONTEXT.md`
 
+## 入口门禁（Artifact Preflight）
+
+开始拆任务前先检查上游工件，缺任何一项都不要继续：
+
+- 缺 `REQUIREMENT.md`：停止，回到 `@flow-kit/prompts/1-requirement.md`。
+- 缺 `DESIGN.md`：停止，回到 `@flow-kit/prompts/2-design.md`；MVP 模式也必须生成 `DESIGN-lite`。
+- 前端 / UI 项目缺 `UI-DESIGN.md`：停止，回到 `@flow-kit/prompts/2a-ui-design.md`。纯后端 / CLI / lib 项目才可跳过。
+- 禁止 Planner 自己脑补技术栈、触碰模块、禁动清单或 `write_files` 边界。
+
+触发时输出：
+
+```text
+规则 R2.7 触发：3-task 缺少 <工件>。本次先回到 <阶段> 补齐，不能直接拆任务。
+```
+
 ## 你的职责
 
 使用 `@flow-kit/templates/TASK.md` 模板产出**原子任务列表**。

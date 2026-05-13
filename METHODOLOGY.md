@@ -22,7 +22,7 @@ CHANGE → REQUIREMENT → DESIGN → [2a UI-DESIGN]* → TASK → DEV → TEST 
 
 **前端项目路径**：`CHANGE → REQUIREMENT → DESIGN → 2a UI-DESIGN → TASK → DEV → TEST → REVIEW (3 轮) → INTEGRATION`
 **后端项目路径**：`CHANGE → REQUIREMENT → DESIGN → TASK → DEV → TEST → REVIEW → INTEGRATION`
-**MVP 路径**：`REQUIREMENT → TASK → DEV`（只跑这三步，3 个文件起步）
+**MVP 路径**：`REQUIREMENT → DESIGN-lite → TASK → DEV`（阶段可压缩，但关键工件不能缺；`DESIGN-lite` 至少写清技术栈、触碰边界和不做什么）
 
 ---
 

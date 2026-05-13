@@ -74,10 +74,14 @@
 
 - **R2.1** 没有 `CHANGE.md` 不能进 `REQUIREMENT`（迭代模式）。
 - **R2.2** 没有 `REQUIREMENT.md` 不能进 `DESIGN`。
-- **R2.3** 没有 `TASK.md` 不能写代码。每个任务必须含可执行的 `verify` 命令。
+- **R2.3** 没有正式 `TASK.md` 或用户显式提供的临时最小 TASK，不能写代码。每个任务必须含可执行的 `verify` 命令。
 - **R2.4** 任何任务在 `verify` 通过前不能勾选完成。
 - **R2.5** `REVIEW.md` 标为「严重」的项目，必须修复或显式标注「已知接受」并经人工确认，否则不能进 `INTEGRATION`。
 - **R2.6** `INTEGRATION` 阶段的 UAT 失败时，自动生成 fix-plan 回到 `DEV`，**最多重试 3 轮**，超限必须暂停。
+- **R2.7 · Artifact Preflight Gate（强制）** 进入任意阶段前，必须检查目标阶段所需上游工件是否存在且足够用。阶段可以压缩到同一轮对话里做，但关键工件不能缺席。
+- **R2.8** 缺上游工件时必须回退生成缺失工件，禁止伪造"已满足"、禁止凭对话记忆冒充 `.md` 产物。
+- **R2.9** `4-dev` 允许单点调用，但必须满足二选一：① 正式 `.specs/<id>/TASK.md` 中存在当前 task；② 用户显式提供临时最小 TASK。临时最小 TASK 必须含 `id / name / read_files / write_files / action / verify / done`。AI 不允许自行编造临时 TASK 绕过 `3-task`。
+- **R2.10** 前端 / UI 任务缺 `UI-DESIGN.md` 时禁止进入 `DEV`。只有纯后端 / CLI / lib 任务，且不触碰用户可见 UI，才能跳过 `2a-ui-design`。
 
 ## R3 · 角色红线
 

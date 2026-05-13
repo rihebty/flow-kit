@@ -39,7 +39,7 @@
 
 ```yaml
 # 老项目入场扫描 / AI 上下文文档替代
-ai_context_doc: CONTEXT.md          # 或 AGENTS.md / CLAUDE.md / 用户指定路径 / none
+ai_context_doc: .specs/CONTEXT.md   # 或 AGENTS.md / CLAUDE.md / 用户指定路径 / none
 last_intel_scan: 2026-04-15          # 上次跑 I-intel-scan 的日期；为空表示从未跑
                                      # GO.md 第三步会按 90 天阈值提醒重扫
 
