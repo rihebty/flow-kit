@@ -40,6 +40,7 @@ CHANGE → REQUIREMENT → DESIGN → [2a UI-DESIGN]* → TASK → DEV → TEST 
 | REVIEW | diff + SPEC | 双轮审查（spec 合规 + 代码质量）| `REVIEW.md` | 是（仅严重项）| 否 |
 | INTEGRATION | 全部已通过 | UAT + 集成 smoke + 失败诊断 | `UAT.md` / fix-plan | 是 | 否 |
 | ARCHIVE | 已合并 | 折叠 change 进主 spec | `archive/<date>-<name>/` | 否 | — |
+| **EXPLORE**（横向）| 一句话想法 / 模糊问题 / Bug 症状 | 探索问题空间 + 可视化 + 对比方案 + Bug 排查 | 无强制产出 | 否 | — |
 
 ---
 

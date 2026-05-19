@@ -62,7 +62,7 @@ flow-kit 的文件分两类，**加载策略不同**：
 
 - 用户已显式指定模式（如「快速加个字段」/「极简模式跑」）
 - 当前是恢复中断任务（直接走 R1.5 重启协议，不重新估）
-- 用户跑横向命令（L-restyle / M-health）— 这些有自己的预算
+- 用户跑横向命令（L-restyle / M-health / X-explore）— 这些有自己的预算
 
 ### 真实成本影响因子（让估算更准）
 
@@ -149,6 +149,7 @@ Preflight 失败时，路由声明必须写明：
 | `UI` / `视觉` / `美学` / `theme` / `design system` / `design tokens` | `prompts/2a-ui-design.md` | 前端项目，用户可见 UI；必须已有 `CHANGE.md` + `REQUIREMENT.md` + `DESIGN.md` |
 | `换调性` / `改风格` / `换风格` / `redesign` / `restyle` / `重做视觉` / `换皮` | `prompts/L-restyle.md` | 已有项目换视觉，保留功能 |
 | `健康检查` / `health` / `体检` / `技术债扫描` / `巡检` / `brooks-health` / `brooks-sweep` / `brooks-audit` / `brooks-debt` / `扫冗余` / `找死代码` / `找重复` / `清未用导出` / `清未用依赖` / `dedupe` / `dead code` | `prompts/M-health.md` | 代码库周期性巡检 + 冗余扫描（步骤 2.5），不属任何 change |
+| `探索` / `explore` / `想想` / `调研` / `对比` / `brainstorm` / `spike` / `想清楚` / `排查` / `investigate` / `这个 bug` / `为什么会` | `prompts/X-explore.md` | 横向命令，不属任何 change。思考伙伴模式（功能探索 + Bug 排查）|
 | `扫描代码` / `scan` / `intel` / `入场扫描` / `给项目体检` / `老项目首次访问` | `prompts/I-intel-scan.md` | 生成 / 更新 `.specs/CONTEXT.md`，brownfield 项目首次使用必跑 |
 | `同步架构` / `沉淀架构` / `evolve` / `架构演进` / `同步 CONTEXT` / `整理沉淀` | `prompts/A-evolve.md` | 扫近期归档 change 的 DESIGN § 9，批量 review + patch CONTEXT.md / ARCHITECTURE.md（不属任何 change）|
 | `建立架构` / `架构梳理` / `重构架构` / `architect` / `重审 ADR` / `画架构图` | `prompts/A-architect.md` | 首次 / 重构时建立 `ARCHITECTURE.md`。项目级 ADR / 模块图 / 跨模块契约（不属任何 change）|
@@ -331,10 +332,11 @@ read_file path="flow-kit/reference/tech-stacks.md" offset=380 limit=60
 
 例：用户只发了 `@flow-kit/GO.md`，正文空。
 
-→ AI 必须主动反问，给出 3 个最可能的选项让用户选：
+→ AI 必须主动反问，提供以下几个最可能的选项让用户选：
 1. 我有个新想法想做
 2. 继续上次的工作（如果 STATE 有活跃 change，主动列出）
 3. 我要审查/测试某段已有代码
+4. 我有个模糊想法 / bug 想先探索一下（→ X-explore）
 
 不要瞎猜路由。
 
